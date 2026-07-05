@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     debug: bool = False
     ballchasing_api_key: str
     ballchasing_base_url: str = "https://ballchasing.com/api"
+    database_url: str
 
 
 settings = Settings()

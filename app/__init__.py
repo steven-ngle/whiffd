@@ -1,9 +1,12 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
+from app.core.db import engine
 from app.services.ballchasing import BallchasingClient
-from app.api.deps import get_ballchasing
+from app.api.deps import get_ballchasing, get_db
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -12,6 +15,7 @@ async def lifespan(app: FastAPI):
         yield
     finally:
         await app.state.ballchasing.close()
+        await engine.dispose()
 
 def create_app() -> FastAPI:
     app = FastAPI(
@@ -28,4 +32,9 @@ def create_app() -> FastAPI:
     async def ping_ballchasing(client: BallchasingClient = Depends(get_ballchasing)) -> dict:
         return await client.ping()
 
+    @app.get("/db-check")
+    async def db_check(session: AsyncSession = Depends(get_db)) -> dict:
+        result = await session.execute(text("SELECT version()"))
+        return {"postgres": result.scalar_one()}
+    
     return app

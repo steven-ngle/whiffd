@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:18
+    container_name: whiffd-db
+    environment:
+      POSTGRES_USER: whiffd
+      POSTGRES_PASSWORD: whiffd
+      POSTGRES_DB: whiffd
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+
+volumes:
+  pgdata:
